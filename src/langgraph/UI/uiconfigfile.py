@@ -1,10 +1,17 @@
 from configparser import ConfigParser
 
+# import os
+# class Config:
+#     def __init__(self, config_file_path=None):
+#         if config_file_path is None:
+#             config_file_path = os.path.join(os.path.dirname(__file__), 'streamlit', 'uiconfigfile.ini')
+#         self.config = ConfigParser()
+#         self.config.read(config_file_path)
+
 class Config:
-    def __init__(self):
-        #os.path.join(os.path.dirname(__file__), 'uiconfigfile.ini')
+    def __init__(self, config_file_path="./src/langgraph/UI/streamlit/uiconfigfile.ini"):
         self.config = ConfigParser()
-        self.config.read('uiconfigfile.ini')
+        self.config.read(config_file_path)
 
     def get_llm_option(self):
         return self.config["DEFAULT"].get("LLM_OPTIONS").split(", ")
