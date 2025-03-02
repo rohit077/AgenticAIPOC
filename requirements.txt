@@ -1,0 +1,12 @@
+langchain
+openai
+langGraph
+langGraph-community
+langchain-community
+langchain-groq
+langchain-openai
+langchain-core
+faiss-cpu
+tiktoken
+python-dotenv
+streamlit
