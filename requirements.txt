@@ -1,7 +1,6 @@
 langchain
 openai
 langGraph
-langGraph-community
 langchain-community
 langchain-groq
 langchain-openai
