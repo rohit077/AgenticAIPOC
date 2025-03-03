@@ -1,12 +1,12 @@
 import streamlit as st
 import json
-from src.langgraph.UI.streamlit.loadui import LoadStreamlitUI
-from src.langgraph.llm.groqllm import GroqLLM
-from src.langgraph.graph.graph_builder import GraphBuilder
-from src.langgraph.UI.streamlit.displayresult import DisplayResultStreamlit
+from .UI.streamlit.loadui import LoadStreamlitUI
+from .llm.groqllm import GroqLLM
+from .graph.graph_builder import GraphBuilder
+from .UI.streamlit.displayresult import DisplayResultStreamlit
 
 
-def __main__():
+def load_app():
     """
     
     Loads and runs the LangGranph Agentic AI POC application.
@@ -46,8 +46,8 @@ def __main__():
             #Graph Builder
             graph_builder = GraphBuilder(llm=model, use_case=use_case)
             try:
-                graph = graph_builder.setup_graph(usecase)
-                DisplayResultStreamlit(usecase,graph,user_message).display_result_on_ui()
+                graph = graph_builder.setup_graph(use_case)
+                DisplayResultStreamlit(use_case, graph, user_message).display_result_on_ui()
             except Exception as e:
                 st.error(f"Error: Graph setup failed - {e}")
                 return

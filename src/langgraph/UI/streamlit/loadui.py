@@ -3,8 +3,8 @@ import os
 from dotenv import load_dotenv
 from datetime import date
 
-from langchain_core import AIMessage, HumanMessage, SystemMessage
-from src.langgraph.UI.uiconfigfile import Config
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from ...UI.uiconfigfile import Config
 
 class LoadStreamlitUI:
     def __init__(self):
@@ -50,10 +50,17 @@ class LoadStreamlitUI:
             #Creating a dropdown for the LLM options
             st.session_state.selected_llm = st.selectbox("Select LLM", LLM_OPTIONS)
 
+            # Initialize the user_controls dictionary to store user selections
+            user_controls = {}
+            
             if st.session_state.selected_llm == "Groq":
                 model = self.config.get_groq_model()
                 st.session_state.selected_model = st.selectbox("Select Model", model)
                 st.session_state.selected_model_api_key = st.text_input("Enter API Key", type="password")
+
+                # Store the Groq-specific values in user_controls
+                user_controls["groq_api_key"] = st.session_state.selected_model_api_key
+                user_controls["selected_groq_models"] = st.session_state.selected_model
 
                 #validating the API key
                 if not st.session_state.selected_model_api_key:
@@ -61,11 +68,12 @@ class LoadStreamlitUI:
 
             #Creating a dropdown for the use case options
             st.session_state.selected_usecase = st.selectbox("Select Use Case", USE_CASE_OPTIONS)
+            user_controls["selected_use_case"] = st.session_state.selected_usecase
 
             if "state" not in st.session_state:
                 st.session_state.state = self.initialize_state()
             #self.render_requirements()
 
-        return self.user_controls
+        return user_controls
 
             
