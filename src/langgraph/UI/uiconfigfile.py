@@ -9,7 +9,7 @@ from configparser import ConfigParser
 #         self.config.read(config_file_path)
 
 class Config:
-    def __init__(self,config_file="./src/langgraphagenticai/ui/uiconfigfile.ini"):
+    def __init__(self,config_file="./src/langgraph/UI/uiconfigfile.ini"):
         self.config=ConfigParser()
         self.config.read(config_file)
 
