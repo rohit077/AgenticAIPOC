@@ -1,79 +1,63 @@
 import streamlit as st
 import os
-from dotenv import load_dotenv
 from datetime import date
+from langchain_core.messages import AIMessage,HumanMessage
+from src.langgraph.UI.uiconfigfile import Config
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from ...UI.uiconfigfile import Config
 
 class LoadStreamlitUI:
     def __init__(self):
-        self.config = Config()
-        self.user_config = {}
+        self.config =  Config() # config
+        self.user_controls = {}
 
-    def initialize_state(self):
+    def initialize_session(self):
         return {
-            "timeframe": "",
-            "current_step": "requirements",
-            "requirements": "",
-            "user_stories": "",
-            "IsFetchButtonClicked": False,
-            "Is_SDLC": False
-        }
-    
-    # def render_requirements(self):
-    #     st.markdown("## Requirements Submission")
-    #     st.session_state.state["requirements"] = st.text_area("Enter Your Requirements", height=100, key="get_requirements")
-
-    #     if st.button("Submit Requirements", key="submit_requirements"):
-    #         st.session_state["current_step"] = "generate_user_stories"
-    #         st.session_state.IsSLDC = True
+        "current_step": "requirements",
+        "requirements": "",
+        "user_stories": "",
+        "po_feedback": "",
+        "generated_code": "",
+        "review_feedback": "",
+        "decision": None
+    }
+  
 
 
-    def load_ui(self):
-        st.set_page_config(
-            page_title="👁" + self.config.get_page_title(),
-            #page_icon=self.config.get_page_icon(),
-            layout="wide"
-        )
+    def load_streamlit_ui(self):
+        st.set_page_config(page_title= self.config.get_page_title(), layout="wide")
         st.header(self.config.get_page_title())
-        st.markdown("---")
         st.session_state.timeframe = ''
         st.session_state.IsFetchButtonClicked = False
-        st.session_state.Is_SDLC = False
+        st.session_state.IsSDLC = False
+        
+        
 
         with st.sidebar:
-            #Getting sidebar options from the config file
-            LLM_OPTIONS = self.config.get_llm_options()
-            USE_CASE_OPTIONS = self.config.get_usecase_options()
+            # Get options from config
+            llm_options = self.config.get_llm_options()
+            usecase_options = self.config.get_usecase_options()
 
-            #Creating a dropdown for the LLM options
-            st.session_state.selected_llm = st.selectbox("Select LLM", LLM_OPTIONS)
+            # LLM selection
+            self.user_controls["selected_llm"] = st.selectbox("Select LLM", llm_options)
 
-            # Initialize the user_controls dictionary to store user selections
-            user_controls = {}
+            if self.user_controls["selected_llm"] == 'Groq':
+                # Model selection
+                model_options = self.config.get_groq_model_options()
+                self.user_controls["selected_groq_model"] = st.selectbox("Select Model", model_options)
+                # API key input
+                self.user_controls["GROQ_API_KEY"] = st.session_state["GROQ_API_KEY"] = st.text_input("API Key",
+                                                                                                      type="password")
+                # Validate API key
+                if not self.user_controls["GROQ_API_KEY"]:
+                    st.warning("⚠️ Please enter your GROQ API key to proceed. Don't have? refer : https://console.groq.com/keys ")
+                   
             
-            if st.session_state.selected_llm == "Groq":
-                model = self.config.get_groq_model()
-                st.session_state.selected_model = st.selectbox("Select Model", model)
-                st.session_state.selected_model_api_key = st.text_input("Enter API Key", type="password")
-
-                # Store the Groq-specific values in user_controls
-                user_controls["groq_api_key"] = st.session_state.selected_model_api_key
-                user_controls["selected_groq_models"] = st.session_state.selected_model
-
-                #validating the API key
-                if not st.session_state.selected_model_api_key:
-                    st.error("Please enter the correct API key. refer :  https://console.groq.com/keys")
-
-            #Creating a dropdown for the use case options
-            st.session_state.selected_usecase = st.selectbox("Select Use Case", USE_CASE_OPTIONS)
-            user_controls["selected_use_case"] = st.session_state.selected_usecase
-
+            # Use case selection
+            self.user_controls["selected_usecase"] = st.selectbox("Select Usecases", usecase_options)
+            
             if "state" not in st.session_state:
-                st.session_state.state = self.initialize_state()
-            #self.render_requirements()
-
-        return user_controls
-
+                st.session_state.state = self.initialize_session()
             
+            
+        
+        return self.user_controls

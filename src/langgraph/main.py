@@ -1,58 +1,59 @@
 import streamlit as st
 import json
-from .UI.streamlit.loadui import LoadStreamlitUI
-from .llm.groqllm import GroqLLM
-from .graph.graph_builder import GraphBuilder
-from .UI.streamlit.displayresult import DisplayResultStreamlit
+from src.langgraph.UI.streamlit.loadui import LoadStreamlitUI
+from src.langgraph.llm.groqllm import GroqLLM
+from src.langgraph.graph.graph_builder import GraphBuilder
+from src.langgraph.UI.streamlit.displayresult import DisplayResultStreamlit
 
 
 def load_app():
     """
-    
-    Loads and runs the LangGranph Agentic AI POC application.
-
+    Loads and runs the LangGraph AgenticAI application with Streamlit UI.
+    This function initializes the UI, handles user input, configures the LLM model,
+    sets up the graph based on the selected use case, and displays the output while 
+    implementing exception handling for robustness.
     """
-
-    #load the UI
+   
+    # Load UI
     ui = LoadStreamlitUI()
-    user_input = ui.load_ui()
+    user_input = ui.load_streamlit_ui()
 
     if not user_input:
-        st.error("Please enter the requirements and click on the button to generate the SDLC")
+        st.error("Error: Failed to load user input from the UI.")
         return
-    
-    #Test input for user message state
+
+    # Text input for user message
     if st.session_state.IsFetchButtonClicked:
-        user_message = st.session_state.state.timeframe
-    else:
-        user_message = st.chat_input("Enter your message here...")
+        user_message = st.session_state.timeframe 
+    else :
+        user_message = st.chat_input("Enter your message:")
 
-    #Initialize the LLM
     if user_message:
-        try:
-            llm = GroqLLM(user_controls_input=user_input)
-            model = llm.get_llm_model()
-
-            if not model:
-                st.error("Failed to initialize the LLM model")
-                return
-            
-            #select use-case
-            use_case = user_input.get("selected_use_case")
-            if not use_case:
-                st.error("No Use Case Selected")
-                return
-            
-            #Graph Builder
-            graph_builder = GraphBuilder(llm=model, use_case=use_case)
             try:
-                graph = graph_builder.setup_graph(use_case)
-                DisplayResultStreamlit(use_case, graph, user_message).display_result_on_ui()
-            except Exception as e:
-                st.error(f"Error: Graph setup failed - {e}")
-                return
+                # Configure LLM
+                obj_llm_config = GroqLLM(user_controls_input=user_input)
+                model = obj_llm_config.get_llm_model()
+                
+                if not model:
+                    st.error("Error: LLM model could not be initialized.")
+                    return
+
+                # Initialize and set up the graph based on use case
+                usecase = user_input.get('selected_usecase')
+                if not usecase:
+                    st.error("Error: No use case selected.")
+                    return
                 
 
-        except Exception as e:
-            raise ValueError(f"Error Occurred with Exception : {e}")
-            
+                ### Graph Builder
+                graph_builder=GraphBuilder(model)
+                try:
+                    graph = graph_builder.setup_graph(usecase)
+                    DisplayResultStreamlit(usecase,graph,user_message).display_result_on_ui()
+                except Exception as e:
+                    st.error(f"Error: Graph setup failed - {e}")
+                    return
+                
+
+            except Exception as e:
+                 raise ValueError(f"Error Occurred with Exception : {e}")
